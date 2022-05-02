@@ -76,39 +76,39 @@ button_data = [
 ]
 USING_RPI = False
 
-class Title(Frame):
+class Title(Grid):
     def __init__(self, master):
-        Frame.__init__(self, master)
-        self.setupGUI()
+        #Frame.__init__(self, master)
+        self.setupGUI(master)
 
-    def setupGUI(self):
-        button1 = Button(self, text="Easy", command=self.easy)
+    def setupGUI(self, master):
+        button1 = Button(self, text="Easy", command=lambda: self.easy(master))
         button1.grid(row=0, column=1)
 
-        button2 = Button(self, text="Normal", command=self.normal)
+        button2 = Button(self, text="Normal", command=lambda: self.normal(master))
         button2.grid(row=1, column=1)
 
-        button3 = Button(self, text="Hard", command=self.hard)
+        button3 = Button(self, text="Hard", command=lambda: self.hard(master))
         button3.grid(row=2, column=1)
 
         self.pack()
 
-    def easy(self):
+    def easy(self, master):
         self.pack_forget()
-        Grid.__init__(self, self.master)
+        Grid.__init__(self, master)
 
-    def normal(self):
+    def normal(self, master):
         self.pack_forget()
-        Grid.__init__(self, self.master)
+        Grid.__init__(self, master)
     
-    def hard(self):
+    def hard(self, master):
         self.pack_forget()
-        Grid.__init__(self, self.master)
+        Grid.__init__(self, master)
 
 class Grid(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)
-        self.setupGUI()
+        self.setup_GUI()
 
     def make_button(self, row, col, value):
         bg_color = "white"
@@ -127,7 +127,7 @@ class Grid(Frame):
 
         button.grid(row=row, column=col, sticky=NSEW)
 
-    def setupGUI(self):
+    def setup_GUI(self):
         self.display = Label(self, text="", anchor=E, bg="white", fg="black", height=1, font=("Arial", 40))
         self.display.grid(row=0, column=0, columnspan=4, sticky=NSEW)
 
