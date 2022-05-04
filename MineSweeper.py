@@ -5,6 +5,7 @@ import board
 import neopixel
 cells = 64
 
+off = (0,0,0)
 Red = (255,0,0)
 Green = (0,255,0)
 Blue = (0,0,255)
@@ -12,18 +13,23 @@ Orange = (255,128,0)
 Yellow = (255,255,0)
 Purple = (102,0,204)
 Pink = (255,0,255)
+Cyan = (0,255,255)
 
 pixels = neopixel.NeoPixel(board.D18,cells, brightness=.01, auto_write=True)
+FlagMode = False
 
 # Printing the Minesweeper Layout
 def print_mines_layout():
  
     global shown
     pixels.fill((255,255,255))
-
     for i in range(64):
+        if actual[i] == 0 and i in vis:
+            pixels[i] = off
+
+    '''for i in range(64):
         if actual[i] == -1 and i in vis:
-            pixels[i] = (255,0,0)
+            pixels[i] = (255,0,0)'''
     for i in range(64):
         if actual[i] == 1 and i in vis:
             pixels[i] = Blue
@@ -32,7 +38,7 @@ def print_mines_layout():
             pixels[i] = Green
     for i in range(64):
         if actual[i] == 3 and i in vis:
-            pixels[i] = Orange
+            pixels[i] = Cyan
     for i in range(64):
         if actual[i] == 4 and i in vis:
             pixels[i] = Pink
@@ -48,6 +54,11 @@ def print_mines_layout():
     for i in range(64):
         if actual[i] == 8 and i in vis:
             pixels[i] = (0,0,153)
+    
+    for pix in range(64):
+        if pix in flags:
+            pixels[pix] = Orange
+
 # Function for setting up Mines
 def set_mines():
  
@@ -66,6 +77,7 @@ def set_mines():
         # Place the mine, if it doesn't already have one
         if actual[pix] != -1:
             count = count + 1
+            mines.append(pix)
             actual[pix] = -1
  
 # Function for setting up the other grid values
@@ -692,44 +704,37 @@ def neighbours(pix):
 # Function for clearing the terminal
 def clear():
     os.system("clear")      
- 
-# Function to display the instructions
-def instructions():
-    print("Instructions:")
-    print("1. Enter row and column number to select a cell, Example \"2 3\"")
-    print("2. In order to flag a mine, enter F after row and column actual, Example \"2 3 F\"")
+
  
 # Function to check for completion of the game
-'''def check_over():
+def check_over():
     global shown
     global mines_no
  
     # Count of all numbered values
     count = 0
- 
     # Loop for checking each cell in the grid
-    for r in range(n):
-        for col in range(n):
- 
-            # If cell not empty or flagged
-            if shown[pix] != ' ' and shown[pix] != 'F':
-                count = count + 1
+    for pix in range(64):
+        # If cell not empty or flagged
+        if shown[pix] != 0 and pix not in flags:
+            count = count + 1
      
     # Count comparison          
-    if count == n * n - mines_no:
+    if count == 64 - mines_no:
         return True
     else:
-        return False'''
+        return False
  
 # Display all the mine locations                    
 def show_mines():
     global shown
     global actual
-    
- 
-    for i in range(64):
-        if actual[i] == -1:
-            pixels[i] = (255,0,0)
+     
+    for pix in range(64):
+        if actual[pix] == -1:
+            pixels[pix] = Red
+        if actual[pix] != -1:
+            pixels[pix] = off
  
  
 if __name__ == "__main__":
@@ -742,17 +747,14 @@ if __name__ == "__main__":
     shown = [0 for x in range(64)]
     # The positions that have been flagged
     flags = []
- 
     # Set the mines
+    mines = []
     set_mines()
  
     # Set the values
-    print(actual)
+    #print(actual)
     set_values()
-    print(actual)
- 
-    # Display the instructions
-    instructions()
+    #print(actual)
  
     # Variable for maintaining Game Loop
     over = False
@@ -761,30 +763,39 @@ if __name__ == "__main__":
     while not over:
         print_mines_layout()
         pix = int(input("enter index"))
-        # If landing on a mine --- GAME OVER    
-        if actual[pix] == -1:
-            
-            show_mines()
-            print_mines_layout()
-            
-            over = True
-            continue
-        
+        # If flagging a mine position
+        if FlagMode == True:    
+            if actual[pix] == -1:
+                flags.append(pix)
+                print_mines_layout()
+                continue
+        # Landing on mine
+        elif FlagMode == False:
+            if actual[pix] == -1:
+                show_mines()
+                print_mines_layout()
+                
+                over = True
+                continue
+        # Flagging any other space
+        elif FlagMode == True:
+            if actual[pix] != -1:
+                print_mines_layout
+                continue
+
         # If landing on a cell with 0 mines in neighboring cells
         elif actual[pix] == 0:
             vis = []
-            shown[pix] = '0'
-            neighbours[pix]
+            shown[pix] = 0
+            neighbours(pix)
  
         # If selecting a cell with atleast 1 mine in neighboring cells  
         else:   
             shown[pix] = actual[pix]
  
         # Check for game completion 
-        '''if(check_over()):
-            show_mines()
+        if(check_over()):
             print_mines_layout()
-            print("Congratulations!!! YOU WIN")
             over = True
-            continue'''
+            continue
         clear()
