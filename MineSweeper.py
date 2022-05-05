@@ -3,6 +3,297 @@ import random
 import os
 import board
 import neopixel
+from tkinter import *
+button_data = [
+    {"row": 0, "col": 0, "value": "A1"},
+    {"row": 0, "col": 1, "value": "A2"},
+    {"row": 0, "col": 2, "value": "A3"},
+    {"row": 0, "col": 3, "value": "A4"},
+    {"row": 0, "col": 4, "value": "A5"},
+    {"row": 0, "col": 5, "value": "A6"},
+    {"row": 0, "col": 6, "value": "A7"},
+    {"row": 0, "col": 7, "value": "A8"},
+
+    {"row": 1, "col": 0, "value": "B1"},
+    {"row": 1, "col": 1, "value": "B2"},
+    {"row": 1, "col": 2, "value": "B3"},
+    {"row": 1, "col": 3, "value": "B4"},
+    {"row": 1, "col": 4, "value": "B5"},
+    {"row": 1, "col": 5, "value": "B6"},
+    {"row": 1, "col": 6, "value": "B7"},
+    {"row": 1, "col": 7, "value": "B8"},
+
+    {"row": 2, "col": 0, "value": "C1"},
+    {"row": 2, "col": 1, "value": "C2"},
+    {"row": 2, "col": 2, "value": "C3"},
+    {"row": 2, "col": 3, "value": "C4"},
+    {"row": 2, "col": 4, "value": "C5"},
+    {"row": 2, "col": 5, "value": "C6"},
+    {"row": 2, "col": 6, "value": "C7"},
+    {"row": 2, "col": 7, "value": "C8"},
+
+    {"row": 3, "col": 0, "value": "D1"},
+    {"row": 3, "col": 1, "value": "D2"},
+    {"row": 3, "col": 2, "value": "D3"},
+    {"row": 3, "col": 3, "value": "D4"},
+    {"row": 3, "col": 4, "value": "D5"},
+    {"row": 3, "col": 5, "value": "D6"},
+    {"row": 3, "col": 6, "value": "D7"},
+    {"row": 3, "col": 7, "value": "D8"},
+
+    {"row": 4, "col": 0, "value": "E1"},
+    {"row": 4, "col": 1, "value": "E2"},
+    {"row": 4, "col": 2, "value": "E3"},
+    {"row": 4, "col": 3, "value": "E4"},
+    {"row": 4, "col": 4, "value": "E5"},
+    {"row": 4, "col": 5, "value": "E6"},
+    {"row": 4, "col": 6, "value": "E7"},
+    {"row": 4, "col": 7, "value": "E8"},
+
+    {"row": 5, "col": 0, "value": "F1"},
+    {"row": 5, "col": 1, "value": "F2"},
+    {"row": 5, "col": 2, "value": "F3"},
+    {"row": 5, "col": 3, "value": "F4"},
+    {"row": 5, "col": 4, "value": "F5"},
+    {"row": 5, "col": 5, "value": "F6"},
+    {"row": 5, "col": 6, "value": "F7"},
+    {"row": 5, "col": 7, "value": "F8"},
+
+    {"row": 6, "col": 0, "value": "G1"},
+    {"row": 6, "col": 1, "value": "G2"},
+    {"row": 6, "col": 2, "value": "G3"},
+    {"row": 6, "col": 3, "value": "G4"},
+    {"row": 6, "col": 4, "value": "G5"},
+    {"row": 6, "col": 5, "value": "G6"},
+    {"row": 6, "col": 6, "value": "G7"},
+    {"row": 6, "col": 7, "value": "G8"},
+
+    {"row": 7, "col": 0, "value": "H1"},
+    {"row": 7, "col": 1, "value": "H2"},
+    {"row": 7, "col": 2, "value": "H3"},
+    {"row": 7, "col": 3, "value": "H4"},
+    {"row": 7, "col": 4, "value": "H5"},
+    {"row": 7, "col": 5, "value": "H6"},
+    {"row": 7, "col": 6, "value": "H7"},
+    {"row": 7, "col": 7, "value": "H8"},
+
+    {"row": 0, "col": 8, "value": "Restart"},
+    {"row": 0, "col": 8, "value": "Flag"},
+
+]
+USING_RPI = False
+
+class Title(Grid):
+    def __init__(self, master):
+        #Frame.__init__(self, master)
+        self.setupGUI(master)
+
+    def setupGUI(self, master):
+        button1 = Button(self, text="Easy", command=lambda: self.easy(master))
+        button1.grid(row=0, column=1)
+
+        button2 = Button(self, text="Normal", command=lambda: self.normal(master))
+        button2.grid(row=1, column=1)
+
+        button3 = Button(self, text="Hard", command=lambda: self.hard(master))
+        button3.grid(row=2, column=1)
+
+        self.pack()
+
+    def easy(self, master):
+        global mines_no
+        self.pack_forget()
+        Grid.__init__(self, master)
+        mines_no=4
+
+    def normal(self, master):
+        global mines_no
+        self.pack_forget()
+        Grid.__init__(self, master)
+        mines_no=6
+    
+    def hard(self, master):
+        global mines_no
+        self.pack_forget()
+        Grid.__init__(self, master)
+        mines_no=8
+
+class Grid(Frame):
+    def __init__(self, master):
+        Frame.__init__(self, master)
+        self.setup_GUI()
+
+    def make_button(self, row, col, value):
+        bg_color = "white"
+
+        button = Button(
+            self, 
+            font=("Arial", 30), 
+            text=value,
+            bg=bg_color,
+            borderwidth=1,
+            highlightthickness=0,
+            width=5,
+            activebackground="white",
+            command=lambda: self.handle_button_press(value)
+        )
+
+        button.grid(row=row, column=col, sticky=NSEW)
+
+    def setup_GUI(self):
+        self.display = Label(self, text="", anchor=E, bg="white", fg="black", height=1, font=("Arial", 40))
+        self.display.grid(row=0, column=0, columnspan=4, sticky=NSEW)
+
+        for row in range(8):
+            Grid.rowconfigure(self, row, weight=1)
+        for col in range(8):
+            Grid.columnconfigure(self, col, weight=1)
+
+        for button in button_data:
+            self.make_button(button["row"], button["col"], button["value"])
+
+        self.pack(fill=BOTH, expand = 1)
+
+    def handle_button_press(self, button_value):
+        global pos
+        if button_value=="A1":
+            pos=0
+        elif button_value=="B1":
+            pos=1
+        elif button_value=="C1":
+            pos=2
+        elif button_value=="D1":
+            pos=3
+        elif button_value=="E1":
+            pos=4
+        elif button_value=="F1":
+            pos=5
+        elif button_value=="G1":
+            pos=6
+        elif button_value=="H1":
+            pos=7
+        elif button_value=="A2":
+            pos=15
+        elif button_value=="B2":
+            pos=14
+        elif button_value=="C2":
+            pos=13
+        elif button_value=="D2":
+            pos=12
+        elif button_value=="E2":
+            pos=11
+        elif button_value=="F2":
+            pos=10
+        elif button_value=="G2":
+            pos=9
+        elif button_value=="H2":
+            pos=8
+        elif button_value=="A3":
+            pos=16
+        elif button_value=="B3":
+            pos=17
+        elif button_value=="C3":
+            pos=18
+        elif button_value=="D3":
+            pos=19
+        elif button_value=="E3":
+            pos=20
+        elif button_value=="F3":
+            pos=21
+        elif button_value=="G3":
+            pos=22
+        elif button_value=="H3":
+            pos=23
+        elif button_value=="A4":
+            pos=31
+        elif button_value=="B4":
+            pos=30
+        elif button_value=="C4":
+            pos=29
+        elif button_value=="D4":
+            pos=28
+        elif button_value=="E4":
+            pos=27
+        elif button_value=="F4":
+            pos=26
+        elif button_value=="G4":
+            pos=25
+        elif button_value=="H4":
+            pos=24
+        elif button_value=="A5":
+            pos=32
+        elif button_value=="B5":
+            pos=33
+        elif button_value=="C5":
+            pos=34
+        elif button_value=="D5":
+            pos=35
+        elif button_value=="E5":
+            pos=36
+        elif button_value=="F5":
+            pos=37
+        elif button_value=="G5":
+            pos=38
+        elif button_value=="H5":
+            pos=39
+        elif button_value=="A6":
+            pos=47
+        elif button_value=="B6":
+            pos=46
+        elif button_value=="C6":
+            pos=45
+        elif button_value=="D6":
+            pos=44
+        elif button_value=="E6":
+            pos=43
+        elif button_value=="F6":
+            pos=42
+        elif button_value=="G6":
+            pos=41
+        elif button_value=="H6":
+            pos=40
+        elif button_value=="A7":
+            pos=48
+        elif button_value=="B7":
+            pos=49
+        elif button_value=="C7":
+            pos=50
+        elif button_value=="D7":
+            pos=51
+        elif button_value=="E7":
+            pos=52
+        elif button_value=="F7":
+            pos=53
+        elif button_value=="G7":
+            pos=54
+        elif button_value=="H7":
+            pos=55
+        elif button_value=="A8":
+            pos=63
+        elif button_value=="B8":
+            pos=62
+        elif button_value=="C8":
+            pos=61
+        elif button_value=="D8":
+            pos=60
+        elif button_value=="E8":
+            pos=59
+        elif button_value=="F8":
+            pos=58
+        elif button_value=="G8":
+            pos=57
+        elif button_value=="H8":
+            pos=56
+            
+        return pos
+
+        #display = self.display["text"]
+
+class MainGUI(Title, Grid):
+    def __init__(self, master):
+        Frame.__init__(self, master)
+        Title.__init__(self, master)
+
 cells = 64
 
 off = (0,0,0)
@@ -738,8 +1029,10 @@ def show_mines():
  
  
 if __name__ == "__main__":
-    # Number of mines
-    mines_no = 4
+    window = Tk()
+    window.title("Please Work")
+    t = MainGUI(window)
+    window.mainloop()
  
     # The actual values of the grid
     actual = [0 for x in range(64)] 
